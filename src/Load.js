@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 
@@ -26,7 +26,7 @@ function Load({setLoad}) {
     };
 
     fetchUser();
-  }, []);
+  }, );
 
   return (
     <div>
@@ -36,7 +36,11 @@ function Load({setLoad}) {
       ) : user ? (
         <div>
           <p>Name: {user.name}</p>
-          <p>Age: {user.age}</p>
+          <p>deskripsi: {user.deskripsi}</p>
+          <p>Total pendapatan donasi:{user.totaldonasi}</p>
+          <p>Total pendapatan adsense:{user.watchcount*0.1}</p>
+          <p>Total pendapatan paidcontent:{user.boughttime*user.price}</p>
+          <p>Total pendapatan :{user.totaldonasi+user.watchcount*0.1+user.boughttime*user.price}</p>
         </div>
       ) : (
         <p>Loading...</p>

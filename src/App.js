@@ -1,6 +1,5 @@
 import Save from "./Save";
 import Load from "./Load";
-import Upload from "./Upload";
 import React, { useState } from "react";
 import Login from "./Login";
 import SignUp from "./SignUp";
@@ -13,7 +12,6 @@ function App() {
       case "Home":
         return (
           <div>
-            <Upload />
             <Save setPage={setCurrentPage} DocId={docId} /> {/* Changed prop name to match Save.js */}
           </div>
         );

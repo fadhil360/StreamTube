@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 function Upload() {
-  const [videoFile, setVideoFile] = useState(null);
+  const [setVideoFile] = useState(null);
 
   const handleFileChange = (e) => {
     if (e.target.files[0]) {
