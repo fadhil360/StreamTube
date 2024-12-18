@@ -16,9 +16,9 @@ function App() {
     }
   };
   return (
-    <div>
-      <div>{renderPage()}</div>
-    </div>
+    <>
+      {renderPage()}
+    </>
   );
 }
 

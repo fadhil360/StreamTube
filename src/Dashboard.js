@@ -19,11 +19,12 @@ function RevenuePage({DocId}) {
     </div>
   );
 }
-function Video() {
+function 
+Video() {
     return (
-        <div>
+        <>
         <Display/>
-        </div>
+        </>
     );
   }
 function Dashboard({ setPage,DocId}) {
@@ -85,7 +86,6 @@ function Dashboard({ setPage,DocId}) {
             >
                 {renderPage()}
             </main>
-        <div className="content"></div>
       </div>
     </div>
   );
