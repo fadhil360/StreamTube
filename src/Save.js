@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { doc, setDoc,getDoc } from "firebase/firestore"; // For Firestore
+import React, { useState,useRef } from "react";
+import { doc, setDoc,serverTimestamp } from "firebase/firestore"; // For Firestore
 import { db } from "./firebaseConfig";
 
 function Save({DocId}) {
@@ -7,69 +7,84 @@ function Save({DocId}) {
   const [deskripsi, setDeskripsi] = useState("");
   const [price, setPrice] = useState(0);
   const [error, setError] = useState(null);
-  const [videofile,setVideoFile] = useState(null);
+  const fileInputRef = useRef(null);
   const [adsense, setAdsense] = useState(false);
   const [donasi, setDonasi] = useState(false);
   const [paidcontent, setPaidcontent] = useState(false);
+  const [noMonetise, setNoMonetise] = useState(true);
 
-  const handleCheckboxChange = (e) => {
-    switch (e.target.name) {
-      case "adsense":
-        setAdsense(e.target.checked);
-        break;
-      case "donasi":
-        setDonasi(e.target.checked);
-        break;      
-      case "paidcontent":
-        setPaidcontent(e.target.checked);
-        break;
-      default:
-        setAdsense(e.target.checked);
-        break;
-    }
-     // Updates state based on the checkbox value
+  const handleCheckboxChange = async (e) => {
+    const { name, checked } = e.target; 
+      switch (name) {
+        case "adsense":
+          setAdsense(checked);
+          if(checked){
+            //alert("You activated Donation");
+            setNoMonetise(false)
+          }
+          break;
+        case "donasi":
+          setDonasi(checked);
+          if(checked){
+            //alert("You activated Donation");
+            setNoMonetise(false)
+          }
+          break;
+        case "paidcontent":
+          setPaidcontent(checked);
+          if(checked){
+            //alert("You activated Donation");
+            setNoMonetise(false)
+          }
+          break;
+        case "No":
+          if(!noMonetise){
+            setAdsense(false);
+            setDonasi(false);
+            setPaidcontent(false);
+            setNoMonetise(true)
+          }
+
+          break;
+        default:
+          break;
+      }
   };
-  const handleFileChange = (e) => {
-    if (e.target.files[0]) {
-      setVideoFile(e.target.files[0]);
-    }
-  };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name || !deskripsi ||!videofile) {
+    if (!name || !deskripsi ||!fileInputRef.current.files[0]) {
       alert("Please fill out all fields.");
       return;
     }
     try {
-      const docRef = doc(db, "users", DocId);
-      const docSnap = await getDoc(docRef);
-  
-      let existingData = null;
-  
-      if (docSnap.exists()) {
-        existingData = docSnap.data(); // Get existing document data
-      } else {
-        console.error("No such document!");
-        setError("No such document!");
-      }
+      const docRef = doc(db, "users", DocId,"video",name);
+
   
       // Save to Firestore
       await setDoc(docRef, {
-        name: name || existingData?.name || "Default Name", // Fallback to "Default Name" if both are missing
-        deskripsi: deskripsi || existingData?.deskripsi || "No description provided",
-        donasi: donasi ?? existingData?.donasi ?? false, // Default to false if missing
-        adsense: adsense ?? existingData?.adsense ?? false,  // Default to 0 if missing
-        paidcontent: paidcontent ?? existingData?.paidcontent ?? false, // Default to false if missing
-        price: price || existingData?.price || 25, // Default to 0 if missing
-        boughttime: existingData?.boughttime ?? 2, // Default to 0 if missing
-        watchcount: existingData?.watchcount ?? 1000, // Default to 0 if missing
-        totaldonasi: existingData?.totaldonasi ?? 2, // Default to 0 if missing
-        syarat: existingData?.syarat ?? "Default terms", // Fallback to "Default terms"
+        name: name  || "Default Name", // Fallback to "Default Name" if both are missing
+        deskripsi: deskripsi || "No description provided",
+        donasi: donasi ?? false, // Default to false if missing
+        adsense: adsense ??  false,  // Default to 0 if missing
+        paidcontent: paidcontent ??  false, // Default to false if missing
+        price: price  || 0, // Default to 0 if missing
+        boughttime:  0, // Default to 0 if missing
+        watchcount:  0, // Default to 0 if missing
+        totaldonasi:  0, // Default to 0 if missing
+        syarat:  false, // Fallback to "Default terms"
+        date: serverTimestamp()
       });
       
   
       setName("");
       setDeskripsi("");
+      setDonasi(false);
+      setAdsense(false);
+      setPaidcontent(false);
+      setPrice(0);
+      fileInputRef.current.value = "";
+      alert("You uploded a video");
     } catch (err) {
       console.error("Error adding document: ", err);
       alert("Error saving data.");
@@ -80,7 +95,7 @@ function Save({DocId}) {
   return (
     <div style={{ padding: "20px" }}>
       <h1>Video Uploader</h1>
-      <input type="file" accept="video/*" onChange={handleFileChange} />
+      <input type="file" accept="video/*" ref={fileInputRef} />
 
       <h1>Detail video</h1>
       <form onSubmit={handleSubmit}>
@@ -145,6 +160,15 @@ function Save({DocId}) {
           type="checkbox"
           name="paidcontent"
           checked={paidcontent}
+          onChange={handleCheckboxChange}
+        />
+        Paid Content
+      </label>
+      <label>
+        <input
+          type="checkbox"
+          name="No"
+          checked={noMonetise}
           onChange={handleCheckboxChange}
         />
         Paid Content

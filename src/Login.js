@@ -33,29 +33,69 @@ function Login({ setPage, setDocId }) {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Login</h1>
-      <form onSubmit={(e) => handleLogin(e, false)}>
-        <div>
-          <label>Email:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <button type="submit">Login</button>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: "50px",
+        fontFamily: "Arial, sans-serif",
+      }}
+    >
+      <h2 style={{ marginBottom: "20px" }}>Log In to Streamtube</h2>
+      <form
+        onSubmit={(e) => handleLogin(e, false)}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          width: "300px",
+          gap: "10px",
+        }}
+      >
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          style={{
+            padding: "10px",
+            border: "1px solid gray",
+            borderRadius: "10px",
+            fontSize: "16px",
+          }}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          style={{
+            padding: "10px",
+            border: "1px solid gray",
+            borderRadius: "10px",
+            fontSize: "16px",
+          }}
+          required
+        />
+        <button
+          type="submit"
+          style={{
+            padding: "10px",
+            borderRadius: "10px",
+            backgroundColor: "darkred",
+            color: "white",
+            border: "none",
+            fontSize: "16px",
+            cursor: "pointer",
+          }}
+        >
+          Log in
+        </button>
       </form>
       {error && <p style={{ color: "red" }}>{error}</p>}
-      <p>
+      <p style={{ marginTop: "10px" }}>
         Don't have an account?{" "}
         <button
           onClick={handleSignUpClick}
@@ -70,7 +110,7 @@ function Login({ setPage, setDocId }) {
           Sign Up
         </button>
       </p>
-      <hr />
+      <hr style={{ width: "300px", margin: "20px 0" }} />
       <button
         onClick={() => handleLogin(null, true)} // Skip login
         style={{
@@ -78,9 +118,9 @@ function Login({ setPage, setDocId }) {
           backgroundColor: "#007bff",
           color: "#fff",
           border: "none",
-          borderRadius: "5px",
+          borderRadius: "10px",
+          fontSize: "16px",
           cursor: "pointer",
-          marginTop: "10px",
         }}
       >
         Login as Guest

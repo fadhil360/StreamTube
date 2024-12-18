@@ -1,5 +1,3 @@
-import Save from "./Save";
-import Load from "./Load";
 import React, { useState } from "react";
 import Login from "./Login";
 import SignUp from "./SignUp";
@@ -10,14 +8,7 @@ function App() {
   const renderPage = () => {
     switch (currentPage) {
       case "Home":
-        return (
-          <div>
-            {/* <Save setPage={setCurrentPage} DocId={docId} />  */}
-            <Dashboard setPage={setCurrentPage} DocId={docId}/>
-          </div>
-        );
-      case "Load":
-        return <Load setLoad={docId}/>;
+        return <Dashboard setPage={setCurrentPage} DocId={docId}/>
       case "SignUp":
         return<SignUp setPage={setCurrentPage} />
       default:

@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
+import './Dashboard.css';
 import Save from "./Save";
 import Load from "./Load";
+import Display from './Dispaly';
 // Components for different pages
 function UploadingPage({ setPage,DocId}) {
   return (
@@ -17,75 +19,74 @@ function RevenuePage({DocId}) {
     </div>
   );
 }
-
+function Video() {
+    return (
+        <div>
+        <Display/>
+        </div>
+    );
+  }
 function Dashboard({ setPage,DocId}) {
-  const [currentPage, setCurrentPage] = useState("Uploading");
+    const [currentPage, setCurrentPage] = useState("Video");
 
-  // Function to render the page based on the current selection
-  const renderPage = () => {
-    switch (currentPage) {
-      case "Uploading":
-        return <UploadingPage setPage={setPage} DocId={DocId} />;
-      case "Revenue":
-        return <RevenuePage DocId={DocId} />;
-      default:
-        return <UploadingPage setPage={setPage} DocId={DocId}/>;
-    }
-  };
+    // Function to render the page based on the current selection
+    const renderPage = () => {
+      switch (currentPage) {
+        case "Uploading":
+            return <UploadingPage setPage={setPage} DocId={DocId} />;
+        case "Revenue":
+            return <RevenuePage DocId={DocId} />;
+        case "Video":
+            return <Video/>
+        default:
+            return <Video/>;
+      }
+    };
 
   return (
-    <div style={{ display: "flex", height: "100vh" }}>
-      {/* Sidebar Navigation */}
-      <nav
-        style={{
-          width: "200px",
-          backgroundColor: "#f4f4f4",
-          padding: "20px",
-          boxShadow: "2px 0 5px rgba(0,0,0,0.1)",
-        }}
-      >
-        <h3>Dashboard</h3>
-        <button
-          onClick={() => setCurrentPage("Uploading")}
-          style={{
-            display: "block",
-            margin: "10px 0",
-            padding: "10px",
-            width: "100%",
-            backgroundColor: currentPage === "Uploading" ? "#007bff" : "#ddd",
-            color: currentPage === "Uploading" ? "#fff" : "#000",
-            border: "none",
-            cursor: "pointer",
-          }}
-        >
-          Upload Video
-        </button>
-        <button
-          onClick={() => setCurrentPage("Revenue")}
-          style={{
-            display: "block",
-            margin: "10px 0",
-            padding: "10px",
-            width: "100%",
-            backgroundColor: currentPage === "Revenue" ? "#007bff" : "#ddd",
-            color: currentPage === "Revenue" ? "#fff" : "#000",
-            border: "none",
-            cursor: "pointer",
-          }}
-        >
-          Revenue Page
-        </button>
-      </nav>
+    <div className="streamtube-container">
+      {/* Header */}
+      <div className="header">
+        <span>Streamtube</span>
+        <div className="header-icons">
+          <i className="fas fa-bell"></i>
+          <i className="fas fa-user-circle"></i>
+        </div>
+      </div>
 
-      {/* Main Content Area */}
-      <main
-        style={{
-          flex: 1,
-          padding: "20px",
-        }}
-      >
-        {renderPage()}
-      </main>
+      {/* Sidebar and Content */}
+      <div style={{ display: 'flex', flex: 1 }}>
+        <div className="sidebar">
+            <button
+                className={`sidebar-button ${currentPage === 'Video' ? 'active' : ''}`}
+                onClick={() => setCurrentPage("Video")}
+            >
+                <i className="fas fa-play"></i> Video
+            </button>
+            <button
+                className={`sidebar-button ${currentPage === 'Revenue' ? 'active' : ''}`}
+                onClick={() => setCurrentPage("Revenue")}
+            >
+                <i className="fas fa-chart-bar"></i> Revenue
+            </button>
+            <button
+                className={`sidebar-button ${currentPage === 'Uploading' ? 'active' : ''}`}
+                onClick={() => setCurrentPage("Uploading")}
+            >
+                <i className="fas fa-upload"></i> Upload
+            </button>
+        </div>
+
+            <main
+                style={{
+                flex: 1,
+                padding: "20px",
+                }}
+            >
+                {renderPage()}
+            </main>
+        <div className="content"></div>
+      </div>
     </div>
   );
 }
