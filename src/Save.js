@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { doc, setDoc,getDoc } from "firebase/firestore"; // For Firestore
 import { db } from "./firebaseConfig";
 
-function Save({ setPage,DocId}) {
+function Save({DocId}) {
   const [name, setName] = useState("");
   const [deskripsi, setDeskripsi] = useState("");
   const [price, setPrice] = useState(0);
@@ -36,10 +36,10 @@ function Save({ setPage,DocId}) {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // if (!name || !deskripsi ||!videofile) {
-    //   alert("Please fill out all fields.");
-    //   return;
-    // }
+    if (!name || !deskripsi ||!videofile) {
+      alert("Please fill out all fields.");
+      return;
+    }
     try {
       const docRef = doc(db, "users", DocId);
       const docSnap = await getDoc(docRef);
@@ -55,22 +55,21 @@ function Save({ setPage,DocId}) {
   
       // Save to Firestore
       await setDoc(docRef, {
-        name: name ? name : existingData?.name, // Use input name if provided; otherwise, fallback to existing name
-        deskripsi: deskripsi ? deskripsi : existingData?.deskripsi ,
-        donasi:donasi,   
-        adsense:adsense, 
-        paidcontent:paidcontent,
-        price:price ?price:existingData?.price,
-        boughttime:existingData?.boughttime,
-        watchcount:existingData?.watchcount,
-        totaldonasi:existingData?.totaldonasi,
-        syarat:existingData?.syarat,
+        name: name || existingData?.name || "Default Name", // Fallback to "Default Name" if both are missing
+        deskripsi: deskripsi || existingData?.deskripsi || "No description provided",
+        donasi: donasi ?? existingData?.donasi ?? false, // Default to false if missing
+        adsense: adsense ?? existingData?.adsense ?? false,  // Default to 0 if missing
+        paidcontent: paidcontent ?? existingData?.paidcontent ?? false, // Default to false if missing
+        price: price || existingData?.price || 25, // Default to 0 if missing
+        boughttime: existingData?.boughttime ?? 2, // Default to 0 if missing
+        watchcount: existingData?.watchcount ?? 1000, // Default to 0 if missing
+        totaldonasi: existingData?.totaldonasi ?? 2, // Default to 0 if missing
+        syarat: existingData?.syarat ?? "Default terms", // Fallback to "Default terms"
       });
+      
   
       setName("");
       setDeskripsi("");
-  
-      setPage("Load"); // Navigate to "Load" page
     } catch (err) {
       console.error("Error adding document: ", err);
       alert("Error saving data.");

@@ -3,7 +3,7 @@ import Load from "./Load";
 import React, { useState } from "react";
 import Login from "./Login";
 import SignUp from "./SignUp";
-
+import Dashboard from "./Dashboard";
 function App() {
   const [currentPage, setCurrentPage] = useState("home");
   const [docId,setDocId]=useState("")
@@ -12,7 +12,8 @@ function App() {
       case "Home":
         return (
           <div>
-            <Save setPage={setCurrentPage} DocId={docId} /> {/* Changed prop name to match Save.js */}
+            {/* <Save setPage={setCurrentPage} DocId={docId} />  */}
+            <Dashboard setPage={setCurrentPage} DocId={docId}/>
           </div>
         );
       case "Load":

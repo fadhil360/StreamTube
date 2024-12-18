@@ -35,12 +35,12 @@ function Load({setLoad}) {
         <p>{error}</p>
       ) : user ? (
         <div>
-          <p>Name: {user.name}</p>
-          <p>deskripsi: {user.deskripsi}</p>
+          <p>Name video: {user.name}</p>
+          <p>Deskripsi: {user.deskripsi}</p>
           <p>Total pendapatan donasi:{user.totaldonasi}</p>
           <p>Total pendapatan adsense:{user.watchcount*0.1}</p>
           <p>Total pendapatan paidcontent:{user.boughttime*user.price}</p>
-          <p>Total pendapatan :{user.totaldonasi+user.watchcount*0.1+user.boughttime*user.price}</p>
+          <p>Total pendapatan :{user.totaldonasi*(user.donasi ? 1 : 0)+user.watchcount*0.1*(user.adsense ? 1 : 0)+user.boughttime*user.price*(user.paidcontent ? 1 : 0)}</p>
         </div>
       ) : (
         <p>Loading...</p>
