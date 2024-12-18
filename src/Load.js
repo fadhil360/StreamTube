@@ -9,6 +9,14 @@ function Load({ setLoad }) {
   const [paid, setPaid] = useState(0);
   const [videos, setVideos] = useState([]);
 
+  // Format angka ke dalam format Rupiah
+  const formatRupiah = (number) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+    }).format(number);
+  };
+
   const getAllDocuments = async () => {
     try {
       let tempDonation = 0;
@@ -63,7 +71,7 @@ function Load({ setLoad }) {
     <div className="min-h-screen bg-gray-100 p-8">
       <div className="bg-white shadow p-6 rounded-lg mb-6 text-center">
         <h2 className="text-xl mb-4">Total Pendapatan</h2>
-        <p className="text-3xl font-bold">Rp {total}</p>
+        <p className="text-3xl font-bold">{formatRupiah(total)}</p>
       </div>
 
       <div className="flex gap-2 mb-6">
@@ -75,15 +83,15 @@ function Load({ setLoad }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-white shadow p-6 rounded-lg text-center">
           <h3 className="text-lg mb-2">Donation</h3>
-          <p className="text-2xl font-semibold">Rp {donation}</p>
+          <p className="text-2xl font-semibold">{formatRupiah(donation)}</p>
         </div>
         <div className="bg-white shadow p-6 rounded-lg text-center">
           <h3 className="text-lg mb-2">Paid Content</h3>
-          <p className="text-2xl font-semibold">Rp {paid}</p>
+          <p className="text-2xl font-semibold">{formatRupiah(paid)}</p>
         </div>
         <div className="bg-white shadow p-6 rounded-lg text-center">
           <h3 className="text-lg mb-2">Adsense</h3>
-          <p className="text-2xl font-semibold">Rp {adsense}</p>
+          <p className="text-2xl font-semibold">{formatRupiah(adsense)}</p>
         </div>
       </div>
 
@@ -103,7 +111,7 @@ function Load({ setLoad }) {
                 <td className="border px-4 py-2">{video.title}</td>
                 <td className="border px-4 py-2">{video.views}</td>
                 <td className="border px-4 py-2">{video.type}</td>
-                <td className="border px-4 py-2">Rp {video.revenue}</td>
+                <td className="border px-4 py-2">{formatRupiah(video.revenue)}</td>
               </tr>
             ))}
           </tbody>

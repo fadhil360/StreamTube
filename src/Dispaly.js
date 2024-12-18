@@ -1,9 +1,11 @@
+'use client'
+
 import React, { useState, useEffect } from 'react';
 import { db } from './firebaseConfig';
 import { collection, getDocs } from 'firebase/firestore';
 
 const Display = () => {
-  const [documents, setDocuments] = useState([]); 
+  const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -12,10 +14,18 @@ const Display = () => {
         const querySnapshot = await getDocs(
           collection(db, "users", "NajrJFyow3UVUTxomku8wUjjYBT2", "video")
         );
-        
+
         const docsArray = querySnapshot.docs.map((doc) => ({
           id: doc.id,
-          ...doc.data(),
+          title: doc.data().name || "No Title",
+          views: doc.data().watchcount || 0,
+          date: doc.data().date
+            ? doc.data().date.toDate().toLocaleDateString('en-GB', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })
+            : 'N/A',
         }));
 
         setDocuments(docsArray);
@@ -32,43 +42,39 @@ const Display = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <p className="text-gray-500 text-lg">Loading...</p>
+        <div className="animate-pulse bg-gray-200 w-[800px] h-[400px] rounded-lg"></div>
       </div>
     );
   }
 
-  
-
   return (
-    <div className="max-w-4xl w-full mt-10 p-4">
-      <h2 className="text-2xl font-bold mb-4">Video Anda</h2>
-      <ul className="w-full border-2 p-5 border-gray-300 rounded-xl overflow-hidden">
-        {/* Header Row */}
-        <li className="flex flex-row justify-between rounded-xl bg-[#A10D00] text-white font-semibold px-4 py-2">
-          <div className="w-1/2">Video</div>
-          <div className="w-1/4">Views</div>
-          <div className="w-1/4">Date</div>
-        </li>
+    <div className="max-w-8xl w-full mx-auto mt-auto bg-white shadow-lg rounded-lg">
+      {/* Header */}
+      <div className="border-b p-6">
+        <h2 className="text-2xl font-bold text-[#00000]">Video Anda</h2>
+      </div>
 
-        {/* Data Rows */}
-        {documents.map((doc) => (
-          <li 
-            key={doc.id} 
-            className="flex flex-row justify-between items-center px-4 py-2 border-t border-gray-200 hover:bg-gray-50 transition"
-          >
-            <div className="w-1/2 truncate">{doc.title || doc.id}</div>
-            <div className="w-1/4">{doc.views || 0}</div>
-            <div className="w-1/4">
-              {doc.date
-  ? doc.date.toDate().toLocaleDateString('en-GB', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    }) : 'N/A'}
-            </div>
-          </li>
-        ))}
-      </ul>
+      {/* Table */}
+      <div className="p-6">
+        <table className="table-auto w-full text-left border-collapse">
+          <thead>
+            <tr className="bg-[#A10D00] text-white">
+              <th className="px-4 py-2 border">Video</th>
+              <th className="px-4 py-2 border">Views</th>
+              <th className="px-4 py-2 border">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {documents.map((doc) => (
+              <tr key={doc.id} className="hover:bg-gray-50">
+                <td className="px-4 py-2 border font-medium">{doc.title}</td>
+                <td className="px-4 py-2 border">{doc.views}</td>
+                <td className="px-4 py-2 border">{doc.date}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
