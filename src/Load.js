@@ -96,7 +96,7 @@ function Load({setLoad}) {
               <h3 className="border-2 border-gray-400 py-4 justify-left pl-5 flex rounded-md">Adsense : Rp {adsense}</h3>
             </div>
           </div>
-          <Display/>
+          <Display setLoad={setLoad}/>
         </div>
       ) : (
         <p>Loading...</p>

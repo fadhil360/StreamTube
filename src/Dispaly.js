@@ -2,17 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { db } from './firebaseConfig';
 import { collection, getDocs } from 'firebase/firestore';
 
-const Display = () => {
+const Display = ({setLoad}) => {
   const [documents, setDocuments] = useState([]); 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDocuments = async () => {
-      try {
-        const querySnapshot = await getDocs(
-          collection(db, "users", "NajrJFyow3UVUTxomku8wUjjYBT2", "video")
-        );
-        
+        try {
+        const querySnapshot = await getDocs(collection(db, "users", setLoad, "video"));
         const docsArray = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -57,7 +54,7 @@ const Display = () => {
             className="flex flex-row justify-between items-center px-4 py-2 border-t border-gray-200 hover:bg-gray-50 transition"
           >
             <div className="w-1/2 truncate">{doc.title || doc.id}</div>
-            <div className="w-1/4">{doc.views || 0}</div>
+            <div className="w-1/4">{doc.watchcount || 0}</div>
             <div className="w-1/4">
               {doc.date
   ? doc.date.toDate().toLocaleDateString('en-GB', {
