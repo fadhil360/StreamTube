@@ -1,46 +1,73 @@
 import React, { useState, useEffect } from 'react';
-import { db } from './firebaseConfig'; // Import your Firebase config file
+import { db } from './firebaseConfig';
 import { collection, getDocs } from 'firebase/firestore';
 
 const Display = () => {
-  const [documents, setDocuments] = useState([]); // State to store documents
-  const [loading, setLoading] = useState(true); // Loading state
+  const [documents, setDocuments] = useState([]); 
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDocuments = async () => {
       try {
-        // Get all documents from the Firestore collection
-        const querySnapshot = await getDocs(collection(db, "users","NajrJFyow3UVUTxomku8wUjjYBT2","video"));
+        const querySnapshot = await getDocs(
+          collection(db, "users", "NajrJFyow3UVUTxomku8wUjjYBT2", "video")
+        );
         
-        // Map the documents to an array
         const docsArray = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
 
-        setDocuments(docsArray); // Set the documents in state
+        console.log(docsArray);
+
+        setDocuments(docsArray);
       } catch (error) {
         console.error("Error getting documents: ", error);
       } finally {
-        setLoading(false); // Set loading to false once documents are fetched
+        setLoading(false);
       }
     };
 
     fetchDocuments();
-  }, []); // Empty dependency array, so it runs once after the first render
+  }, []);
 
   if (loading) {
-    return <p>Loading...</p>; // Display loading message while data is being fetched
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-gray-500 text-lg">Loading...</p>
+      </div>
+    );
   }
 
+  
+
   return (
-    <div>
-      <h2>Documents</h2>
-      <ul>
+    <div className="max-w-4xl w-full mt-10 p-4">
+      <h2 className="text-2xl font-bold mb-4">Video Anda</h2>
+      <ul className="w-full border-2 p-5 border-gray-300 rounded-xl overflow-hidden">
+        {/* Header Row */}
+        <li className="flex flex-row justify-between rounded-xl bg-[#A10D00] text-white font-semibold px-4 py-2">
+          <div className="w-1/2">Video</div>
+          <div className="w-1/4">Views</div>
+          <div className="w-1/4">Date</div>
+        </li>
+
+        {/* Data Rows */}
         {documents.map((doc) => (
-          <li key={doc.id}>
-            <h3>{doc.id}</h3>
-            <p>{JSON.stringify(doc)}</p> {/* Display document data */}
+          <li 
+            key={doc.id} 
+            className="flex flex-row justify-between items-center px-4 py-2 border-t border-gray-200 hover:bg-gray-50 transition"
+          >
+            <div className="w-1/2 truncate">{doc.title || doc.id}</div>
+            <div className="w-1/4">{doc.views || 0}</div>
+            <div className="w-1/4">
+              {doc.date
+  ? doc.date.toDate().toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    }) : 'N/A'}
+            </div>
           </li>
         ))}
       </ul>
