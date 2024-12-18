@@ -1,5 +1,5 @@
 import React, { use, useEffect, useState } from "react";
-import { collection, query, getDocs, limit } from "firebase/firestore";
+import { collection, query, getDocs, limit,doc } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 import Display from "./Dispaly";
 
@@ -19,47 +19,57 @@ const dummyDatabase = {
 function Load({setLoad}) {
   const [user, setUser] = useState(dummyDatabase);
   const [error, setError] = useState(null);
+  const [total,setTotal]=useState(0)
+  const [donation,setDonation]=useState(0)
+  const [adsense,setAdsense]=useState(0)
+  const [paid,setPaid]=useState(0)
+  
+  const getAllDocuments = async () => {
+    try {
+      // Initialize temporary totals
+      let tempDonation = 0;
+      let tempAdsense = 0;
+      let tempPaid = 0;
+      let tempTotal = 0;
+  
+      // Get the reference to the collection
+      const querySnapshot = await getDocs(collection(db, "users", setLoad, "video"));
+  
+      // Iterate over the documents and accumulate the totals
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+  
+        const newDonation = data.totaldonasi * (data.donasi ? 1 : 0);
+        const newAdsense = data.watchcount * 0.1 * (data.adsense ? 1 : 0);
+        const newPaid = data.boughttime * (data.price || 0) * (data.paidcontent ? 1 : 0);
+  
+        tempDonation += newDonation;
+        tempAdsense += newAdsense;
+        tempPaid += newPaid;
+        tempTotal += newDonation + newAdsense + newPaid;
+      });
+  
+      // Update the state once after processing all documents
+      setDonation(tempDonation);
+      setAdsense(tempAdsense);
+      setPaid(tempPaid);
+      setTotal(tempTotal);
+  
+      console.log("Final Totals:");
+      console.log("Donation:", tempDonation);
+      console.log("Adsense:", tempAdsense);
+      console.log("Paid:", tempPaid);
+      console.log("Total:", tempTotal);
+    } catch (error) {
+      console.error("Error getting documents: ", error);
+    }
+  };
+  
+  // Fetch the data once in useEffect
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        // Replace 'users' with your collection name and 'docId' with the document ID
-        const firstDocQuery = query(collection(db, "users", setLoad,"video"), limit(1));
-        const querySnapshot = await getDocs(firstDocQuery);
-
-        if (!querySnapshot.empty) {
-          const firstDoc = querySnapshot.docs[0];
-          setUser(firstDoc.data());
-        } else {
-          console.log("No documents found in the collection.");
-        }
-      } catch (error) {
-        console.error("Error getting the first document: ", error);
-      }
-    };
-
-    fetchUser();
-  }, );
-  // useEffect(() => {
-  //   const fetchUser = async () => {
-  //     try {
-  //       // Replace 'users' with your collection name and 'docId' with the document ID
-  //       const docRef = doc(db, "users", setLoad);
-  //       const docSnap = await getDoc(docRef);
-
-  //       if (docSnap.exists()) {
-  //         setUser(docSnap.data());
-  //       } else {
-  //         console.error("No such document!");
-  //         setError("No such document!");
-  //       }
-  //     } catch (err) {
-  //       console.error("Error fetching document: ", err);
-  //       setError("Error fetching document!");
-  //     }
-  //   };
-
-  //   fetchUser();
-  // }, );
+    getAllDocuments();
+  }, []); // Dependency array ensures it runs only once
+  
 
   return (
     <div>
@@ -72,7 +82,7 @@ function Load({setLoad}) {
             <div className="flex flex-col gap-3">
               <div className="px-16 py-12 text-center flex flex-col justify-center border-2 border-gray-400 rounded-xl text-xl font-semibold">
                 <h2>Total Pendapatan</h2>
-                <h2>{user.totaldonasi*(user.donasi ? 1 : 0)+(user.watchcount*0.1*(user.adsense ? 1 : 0))+(user.boughttime*user.price*(user.paidcontent ? 1 : 0))}</h2>
+                <h2>{total}</h2>
               </div>
               <div className="flex flex-row justify-between">
                 <div className="border-2 border-gray-400 rounded-md w-20 text-center py-1.5 ">All</div>
@@ -81,9 +91,9 @@ function Load({setLoad}) {
               </div>
             </div>
             <div className="flex flex-col h-full gap-4 justify-between flex-grow">
-              <h3 className="border-2 border-gray-400 py-4 justify-left pl-5 flex rounded-md">Donation : Rp {user.totaldonasi}</h3>
-              <h3 className="border-2 border-gray-400 py-4 justify-left pl-5 flex rounded-md">Paid Content : Rp {user.boughttime*user.price}</h3>
-              <h3 className="border-2 border-gray-400 py-4 justify-left pl-5 flex rounded-md">Adsense : Rp {user.watchcount*0.1}</h3>
+              <h3 className="border-2 border-gray-400 py-4 justify-left pl-5 flex rounded-md">Donation : Rp {donation}</h3>
+              <h3 className="border-2 border-gray-400 py-4 justify-left pl-5 flex rounded-md">Paid Content : Rp {paid}</h3>
+              <h3 className="border-2 border-gray-400 py-4 justify-left pl-5 flex rounded-md">Adsense : Rp {adsense}</h3>
             </div>
           </div>
           <Display/>
