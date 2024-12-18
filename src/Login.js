@@ -78,7 +78,7 @@ function Login({ setPage, setDocId }) {
             fontSize: "16px",
           }}
           required
-        />
+        />  
         <button
           type="submit"
           style={{
