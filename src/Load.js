@@ -1,5 +1,5 @@
 import React, { use, useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
+import { collection, query, getDocs, limit } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 import Display from "./Dispaly";
 
@@ -19,7 +19,26 @@ const dummyDatabase = {
 function Load({setLoad}) {
   const [user, setUser] = useState(dummyDatabase);
   const [error, setError] = useState(null);
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        // Replace 'users' with your collection name and 'docId' with the document ID
+        const firstDocQuery = query(collection(db, "users", setLoad,"video"), limit(1));
+        const querySnapshot = await getDocs(firstDocQuery);
 
+        if (!querySnapshot.empty) {
+          const firstDoc = querySnapshot.docs[0];
+          setUser(firstDoc.data());
+        } else {
+          console.log("No documents found in the collection.");
+        }
+      } catch (error) {
+        console.error("Error getting the first document: ", error);
+      }
+    };
+
+    fetchUser();
+  }, );
   // useEffect(() => {
   //   const fetchUser = async () => {
   //     try {
