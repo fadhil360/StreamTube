@@ -18,8 +18,6 @@ const Display = () => {
           ...doc.data(),
         }));
 
-        console.log(docsArray);
-
         setDocuments(docsArray);
       } catch (error) {
         console.error("Error getting documents: ", error);
