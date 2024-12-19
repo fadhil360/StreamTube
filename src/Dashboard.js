@@ -21,10 +21,11 @@ function RevenuePage({ DocId }) {
   );
 }
 
-function Video() {
+function Video({ DocId }) {
   return (
     <>
       <Display />
+      <Display setLoad={DocId} />
     </>
   );
 }
@@ -40,9 +41,9 @@ function Dashboard({ setPage, DocId }) {
       case "Revenue":
         return <RevenuePage DocId={DocId} />;
       case "Video":
-        return <Video />;
+        return <Video DocId={DocId} />;
       default:
-        return <Video />;
+        return <Video DocId={DocId} />;
     }
   };
 
