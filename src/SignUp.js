@@ -82,7 +82,7 @@ function SignUp({ setPage }) {
           Already have an account?{" "}
           <button
             onClick={handleClick}
-            className="text-blue-600 underline focus:outline-none"
+            className="text-[#A10D00] underline focus:outline-none"
           >
             Log In
           </button>

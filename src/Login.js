@@ -75,18 +75,18 @@ function Login({ setPage, setDocId }) {
           Don't have an account?{" "}
           <button
             onClick={handleSignUpClick}
-            className="text-blue-600 underline focus:outline-none"
+            className="text-[#A10D00] underline focus:outline-none"
           >
             Sign Up
           </button>
         </p>
         <hr className="my-6" />
-        <button
+        {/* <button
           onClick={() => handleLogin(null, true)}
           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-full transition-colors"
         >
           Login as Guest
-        </button>
+        </button> */}
       </div>
     </div>
   );

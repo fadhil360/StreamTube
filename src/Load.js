@@ -145,6 +145,15 @@ function Load({ setLoad }) {
   ))}
 </tbody>
         </table>
+        {/* Button "Tarik Pendapatan" */}
+        <div className="mt-6 text-center">
+          <button
+            onClick={() => alert("Uang Berhasil Ditarik")}
+            className="bg-[#a80000] text-white px-6 py-3 rounded-full shadow-lg hover:bg-[#b70000] transition duration-300 transform hover:scale-105"
+          >
+            Tarik Pendapatan
+          </button>
+        </div>
       </div>
     </div>
   );
