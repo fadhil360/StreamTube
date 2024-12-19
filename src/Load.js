@@ -1,118 +1,162 @@
-import React, { use, useEffect, useState } from "react";
-import { collection, query, getDocs, limit,doc } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "./firebaseConfig";
-import Display from "./Dispaly";
 
-const dummyDatabase = {
-  adsense : true,
-  boughttime: 2,
-  deskripsi : "JTELSJFLJS",
-  donasi : true,
-  name : "Test",
-  paidcontent: true, 
-  price: 20,
-  syarat: true,
-  totaldonasi : 25000,
-  watchcount: 1000,
-}
+function Load({ setLoad }) {
+  const [total, setTotal] = useState(0);
+  const [donation, setDonation] = useState(0);
+  const [adsense, setAdsense] = useState(0);
+  const [paid, setPaid] = useState(0);
+  const [videos, setVideos] = useState([]);
 
-function Load({setLoad}) {
-  const [user, setUser] = useState(dummyDatabase);
-  const [error, setError] = useState(null);
-  const [total,setTotal]=useState(0)
-  const [donation,setDonation]=useState(0)
-  const [adsense,setAdsense]=useState(0)
-  const [paid,setPaid]=useState(0)
-  
+  // Format angka ke dalam format Rupiah
+  const formatRupiah = (number) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+    }).format(number);
+  };
+
   const getAllDocuments = async () => {
     try {
-      // Initialize temporary totals
       let tempDonation = 0;
       let tempAdsense = 0;
       let tempPaid = 0;
       let tempTotal = 0;
+      const tempVideos = [];
   
-      // Get the reference to the collection
-      const querySnapshot = await getDocs(collection(db, "users", setLoad, "video"));
+      const querySnapshot = await getDocs(
+        collection(db, "users", setLoad, "video")
+      );
   
-      // Iterate over the documents and accumulate the totals
+      const savedViews = JSON.parse(localStorage.getItem("randomViews")) || {};
+      const savedDonations = JSON.parse(localStorage.getItem("randomDonations")) || {};
+  
       querySnapshot.forEach((doc) => {
         const data = doc.data();
+        const videoId = doc.id;
   
-        const newDonation = data.totaldonasi * (data.donasi ? 1 : 0);
-        const newAdsense = data.watchcount * 0.1 * (data.adsense ? 1 : 0);
-        const newPaid = data.boughttime * (data.price || 0) * (data.paidcontent ? 1 : 0);
+        // Ambil atau generate views
+        let randomViews = savedViews[videoId];
+        if (randomViews === undefined) {
+          randomViews = Math.floor(Math.random() * 1000); // Random angka 0-999
+          savedViews[videoId] = randomViews;
+        }
   
-        tempDonation += newDonation;
-        tempAdsense += newAdsense;
-        tempPaid += newPaid;
-        tempTotal += newDonation + newAdsense + newPaid;
+        // Ambil atau generate donation revenue
+        let randomDonation = savedDonations[videoId];
+        if (randomDonation === undefined && data.donasi) {
+          randomDonation = Math.floor(Math.random() * 50000) + 10000; // Random donation Rp10.000 - Rp50.000
+          savedDonations[videoId] = randomDonation;
+        }
+  
+        const price = data.price || 0; // Ambil harga paid content
+        const revenue = data.paidcontent
+          ? randomViews * price // Paid Content: views * price
+          : data.donasi
+          ? randomDonation // Donation: revenue random
+          : randomViews * 2000; // Adsense: default revenue per view
+  
+        tempVideos.push({
+          title: data.name || "No Title",
+          views: randomViews,
+          type: data.paidcontent
+            ? "Paid Content"
+            : data.adsense
+            ? "Adsense"
+            : "Donation",
+          revenue: revenue,
+        });
+  
+        if (data.donasi) tempDonation += revenue; // Tambahkan ke total donation
+        if (data.paidcontent) tempPaid += revenue; // Tambahkan ke total paid content
+        if (data.adsense) tempAdsense += revenue; // Tambahkan ke total adsense
       });
   
-      // Update the state once after processing all documents
+      // Hitung total pendapatan dari semua kategori
+      tempTotal = tempDonation + tempPaid + tempAdsense;
+
+      // Simpan views dan donations ke local storage untuk persistensi
+      localStorage.setItem("randomViews", JSON.stringify(savedViews));
+      localStorage.setItem("randomDonations", JSON.stringify(savedDonations));
+  
+      // Set state untuk ditampilkan di UI
       setDonation(tempDonation);
       setAdsense(tempAdsense);
       setPaid(tempPaid);
-      setTotal(tempTotal);
-  
-      console.log("Final Totals:");
-      console.log("Donation:", tempDonation);
-      console.log("Adsense:", tempAdsense);
-      console.log("Paid:", tempPaid);
-      console.log("Total:", tempTotal);
+      setTotal(tempTotal); // Set total pendapatan
+      setVideos(tempVideos);
     } catch (error) {
       console.error("Error getting documents: ", error);
     }
   };
   
-  // Fetch the data once in useEffect
   useEffect(() => {
     getAllDocuments();
-  }, []); // Dependency array ensures it runs only once
-  
+  }, []);
+
 
   return (
-    <div>
-      <h1>User Details</h1>
-      {error ? (
-        <p>{error}</p>
-      ) : user ? (
-        <div className="flex flex-col">
-          <div className="flex flex-row gap-2 font-semibold">
-            <div className="flex flex-col gap-3">
-              <div className="px-16 py-12 text-center flex flex-col justify-center border-2 border-gray-400 rounded-xl text-xl font-semibold">
-                <h2>Total Pendapatan</h2>
-                <h2>{total}</h2>
-              </div>
-              <div className="flex flex-row justify-between">
-                <div className="border-2 border-gray-400 rounded-md w-20 text-center py-1.5 ">All</div>
-                <div className="border-2 border-gray-400 rounded-md w-20 text-center py-1.5 ">1 Thn</div>
-                <div className="border-2 border-gray-400 rounded-md w-20 text-center py-1.5 ">1 Bln</div>
-              </div>
-            </div>
-            <div className="flex flex-col h-full gap-4 justify-between flex-grow">
-              <h3 className="border-2 border-gray-400 py-4 justify-left pl-5 flex rounded-md">Donation : Rp {donation}</h3>
-              <h3 className="border-2 border-gray-400 py-4 justify-left pl-5 flex rounded-md">Paid Content : Rp {paid}</h3>
-              <h3 className="border-2 border-gray-400 py-4 justify-left pl-5 flex rounded-md">Adsense : Rp {adsense}</h3>
-            </div>
-          </div>
-          <Display setLoad={setLoad}/>
+    <div className="min-h-screen bg-gray-100 p-8">
+      <div className="bg-white shadow p-6 rounded-lg mb-6 text-center">
+        <h2 className="text-xl mb-4">Total Pendapatan</h2>
+        <p className="text-3xl font-bold">{formatRupiah(total)}</p>
+      </div>
+
+      <div className="flex gap-2 mb-6">
+        <button className="px-4 py-2 border rounded-full">All</button>
+        <button className="px-4 py-2 border rounded-full">1 Thn</button>
+        <button className="px-4 py-2 border rounded-full">1 Bln</button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="bg-white shadow p-6 rounded-lg text-center">
+          <h3 className="text-lg mb-2">Donation</h3>
+          <p className="text-2xl font-semibold">{formatRupiah(donation)}</p>
         </div>
-      ) : (
-        <p>Loading...</p>
-      )}
+        <div className="bg-white shadow p-6 rounded-lg text-center">
+          <h3 className="text-lg mb-2">Paid Content</h3>
+          <p className="text-2xl font-semibold">{formatRupiah(paid)}</p>
+        </div>
+        <div className="bg-white shadow p-6 rounded-lg text-center">
+          <h3 className="text-lg mb-2">Adsense</h3>
+          <p className="text-2xl font-semibold">{formatRupiah(adsense)}</p>
+        </div>
+      </div>
+
+      <div className="bg-white shadow p-6 rounded-lg">
+        <table className="w-full table-auto">
+          <thead>
+            <tr>
+              <th className="border px-4 py-2">Video</th>
+              <th className="border px-4 py-2">Views</th>
+              <th className="border px-4 py-2">Type</th>
+              <th className="border px-4 py-2">Revenue</th>
+            </tr>
+          </thead>
+          <tbody>
+  {videos.map((video, index) => (
+    <tr key={index}>
+      <td className="border px-4 py-2">{video.title}</td>
+      <td className="border px-4 py-2">{video.views}</td>
+      <td className="border px-4 py-2">{video.type}</td>
+      <td className="border px-4 py-2">{formatRupiah(video.revenue)}</td>
+    </tr>
+  ))}
+</tbody>
+        </table>
+        {/* Button "Tarik Pendapatan" */}
+        <div className="mt-6 text-center">
+          <button
+            onClick={() => alert("Uang Berhasil Ditarik")}
+            className="bg-[#a80000] text-white px-6 py-3 rounded-full shadow-lg hover:bg-[#b70000] transition duration-300 transform hover:scale-105"
+          >
+            Tarik Pendapatan
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
 
 export default Load;
-
-
-{/* <div>
-          <p>Name video: {user.name}</p>
-          <p>Deskripsi: {user.deskripsi}</p>
-          <p>Total pendapatan donasi:{user.totaldonasi}</p>
-          <p>Total pendapatan adsense:{user.watchcount*0.1}</p>
-          <p>Total pendapatan paidcontent:{user.boughttime*user.price}</p>
-          <p>Total pendapatan :{user.totaldonasi*(user.donasi ? 1 : 0)+user.watchcount*0.1*(user.adsense ? 1 : 0)+user.boughttime*user.price*(user.paidcontent ? 1 : 0)}</p>
-        </div> */}
