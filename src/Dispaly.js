@@ -5,12 +5,13 @@ import { db } from './firebaseConfig';
 import { collection, getDocs } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
-const Display = () => {
-  const [documents, setDocuments] = useState([]);
+const Display = ({setLoad}) => {
+  const [documents, setDocuments] = useState([]); 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDocuments = async () => {
+
       const auth = getAuth();
       const user = auth.currentUser;
 
@@ -75,6 +76,7 @@ const Display = () => {
 
 
   return (
+
     <div className="max-w-8xl w-full mx-auto mt-auto bg-white shadow-lg rounded-lg">
       {/* Header */}
       <div className="border-b p-6">
