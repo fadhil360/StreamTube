@@ -71,26 +71,26 @@ function Load({ setLoad }) {
         if (data.donasi) tempDonation += revenue; // Tambahkan ke total donation
         if (data.paidcontent) tempPaid += revenue; // Tambahkan ke total paid content
         if (data.adsense) tempAdsense += revenue; // Tambahkan ke total adsense
-  
-        tempTotal += revenue; // Tambahkan semua revenue ke total
       });
   
+      // Hitung total pendapatan dari semua kategori
+      tempTotal = tempDonation + tempPaid + tempAdsense;
+
       // Simpan views dan donations ke local storage untuk persistensi
       localStorage.setItem("randomViews", JSON.stringify(savedViews));
       localStorage.setItem("randomDonations", JSON.stringify(savedDonations));
   
+      // Set state untuk ditampilkan di UI
       setDonation(tempDonation);
       setAdsense(tempAdsense);
       setPaid(tempPaid);
-      setTotal(tempTotal);
+      setTotal(tempTotal); // Set total pendapatan
       setVideos(tempVideos);
     } catch (error) {
       console.error("Error getting documents: ", error);
     }
   };
   
-  
-
   useEffect(() => {
     getAllDocuments();
   }, []);

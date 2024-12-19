@@ -7,21 +7,23 @@ function Save({ DocId }) {
   const [deskripsi, setDeskripsi] = useState("");
   const [price, setPrice] = useState(0);
   const fileInputRef = useRef(null);
-  const [fileName, setFileName] = useState("No file chosen"); // State to store file name
+  const [fileName, setFileName] = useState("No file chosen");
 
   const [adsense, setAdsense] = useState(false);
   const [donasi, setDonasi] = useState(false);
   const [paidcontent, setPaidcontent] = useState(false);
   const [noMonetise, setNoMonetise] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleFileChange = () => {
-    const file = fileInputRef.current.files[0]; // Access the selected file
+    const file = fileInputRef.current.files[0];
     if (file) {
-      setFileName(file.name); // Update state with the file name
+      setFileName(file.name);
     } else {
-      setFileName("No file chosen"); // Reset if no file is selected
+      setFileName("No file chosen");
     }
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -38,14 +40,13 @@ function Save({ DocId }) {
         donasi,
         adsense,
         paidcontent,
-        price: paidcontent ? price : 0, // Menyimpan harga paid content jika monetisasi adalah paid
+        price: paidcontent ? price : 0,
         boughttime: 0,
         watchcount: 0,
         totaldonasi: 0,
         syarat: false,
         date: serverTimestamp(),
       });
-      
 
       setName("");
       setDeskripsi("");
@@ -55,7 +56,7 @@ function Save({ DocId }) {
       setPaidcontent(false);
       setNoMonetise(true);
       fileInputRef.current.value = "";
-      handleFileChange()
+      handleFileChange();
       alert("You uploaded a video!");
     } catch (err) {
       console.error("Error adding document: ", err);
@@ -65,7 +66,6 @@ function Save({ DocId }) {
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      {/* File Input */}
       <div style={{ marginBottom: "20px" }}>
         <label
           style={{
@@ -84,15 +84,12 @@ function Save({ DocId }) {
             accept="video/*"
             ref={fileInputRef}
             style={{ display: "none" }}
-            onChange={handleFileChange} // Trigger file change
+            onChange={handleFileChange}
           />
         </label>
-        <span style={{ marginLeft: "10px", color: "#777" }}>
-          {fileName}
-        </span>
+        <span style={{ marginLeft: "10px", color: "#777" }}>{fileName}</span>
       </div>
 
-      {/* Video Details */}
       <h2 style={{ fontWeight: "bold", marginBottom: "10px" }}>Detail Video</h2>
       <form onSubmit={handleSubmit}>
         <input
@@ -139,98 +136,101 @@ function Save({ DocId }) {
           />
         )}
 
-        {/* Monetization Buttons */}
         <h2 style={{ fontWeight: "bold", marginBottom: "10px" }}>
           Jenis Monetisasi
         </h2>
         <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-        <button
-  type="button"
-  onClick={() => {
-    setPaidcontent(!paidcontent);
-    setNoMonetise(!(adsense||!paidcontent||donasi));
-  }}
-  style={{
-    padding: "10px",
-    borderRadius: "5px",
-    border: "1px solid #a80000",
-    backgroundColor: paidcontent ? "#a80000" : "white",
-    color: paidcontent ? "white" : "black",
-    fontWeight: "bold",
-    cursor: "pointer",
-    width: "150px",
-  }}
->
-  Paid Content
-</button>
+          <button
+            type="button"
+            onClick={() => {
+              setPaidcontent(!paidcontent);
+              if (!paidcontent) {
+                setAdsense(false); // Disable Adsense jika Paid Content dipilih
+              }
+              setNoMonetise(!(!paidcontent || adsense || donasi));
+            }}
+            style={{
+              padding: "10px",
+              borderRadius: "5px",
+              border: "1px solid #a80000",
+              backgroundColor: paidcontent ? "#a80000" : "white",
+              color: paidcontent ? "white" : "black",
+              fontWeight: "bold",
+              cursor: "pointer",
+              width: "150px",
+            }}
+          >
+            Paid Content
+          </button>
 
-<button
-  type="button"
-  onClick={() => {
-    setDonasi(!donasi);
-    setNoMonetise(!(adsense||paidcontent||!donasi));
-  }}
-  style={{
-    padding: "10px",
-    borderRadius: "5px",
-    border: "1px solid #a80000",
-    backgroundColor: donasi ? "#a80000" : "white",
-    color: donasi ? "white" : "black",
-    fontWeight: "bold",
-    cursor: "pointer",
-    width: "150px",
-  }}
->
-  <em>Donation</em>
-</button>
+          <button
+            type="button"
+            onClick={() => {
+              setDonasi(!donasi);
+              setNoMonetise(!(!donasi || paidcontent || adsense));
+            }}
+            style={{
+              padding: "10px",
+              borderRadius: "5px",
+              border: "1px solid #a80000",
+              backgroundColor: donasi ? "#a80000" : "white",
+              color: donasi ? "white" : "black",
+              fontWeight: "bold",
+              cursor: "pointer",
+              width: "150px",
+            }}
+          >
+            <em>Donation</em>
+          </button>
 
-<button
-  type="button"
-  onClick={() => {
-    setAdsense(!adsense);
-    setNoMonetise(!(!adsense||paidcontent||donasi));
-  }}
-  style={{
-    padding: "10px",
-    borderRadius: "5px",
-    border: "1px solid #a80000",
-    backgroundColor: adsense ? "#a80000" : "white",
-    color: adsense ? "white" : "black",
-    fontWeight: "bold",
-    cursor: "pointer",
-    width: "150px",
-  }}
->
-  <em>Adsense</em>
-</button>
+          <button
+            type="button"
+            onClick={() => {
+              setAdsense(!adsense);
+              if (!adsense) {
+                setPaidcontent(false); // Disable Paid Content jika Adsense dipilih
+              }
+              setNoMonetise(!(!adsense || paidcontent || donasi));
+            }}
+            style={{
+              padding: "10px",
+              borderRadius: "5px",
+              border: "1px solid #a80000",
+              backgroundColor: adsense ? "#a80000" : "white",
+              color: adsense ? "white" : "black",
+              fontWeight: "bold",
+              cursor: "pointer",
+              width: "150px",
+            }}
+          >
+            <em>Adsense</em>
+          </button>
 
-<button
-  type="button"
-  onClick={() => {
-    setNoMonetise(true);
-    setPaidcontent(false);
-    setDonasi(false);
-    setAdsense(false);
-  }}
-  style={{
-    padding: "10px",
-    borderRadius: "5px",
-    border: "1px solid #a80000",
-    backgroundColor: noMonetise ? "#a80000" : "white",
-    color: noMonetise ? "white" : "black",
-    fontWeight: "bold",
-    cursor: "pointer",
-    width: "150px",
-  }}
->
-  Tidak dimonetisasi
-</button>
-
+          <button
+            type="button"
+            onClick={() => {
+              setNoMonetise(true);
+              setPaidcontent(false);
+              setDonasi(false);
+              setAdsense(false);
+            }}
+            style={{
+              padding: "10px",
+              borderRadius: "5px",
+              border: "1px solid #a80000",
+              backgroundColor: noMonetise ? "#a80000" : "white",
+              color: noMonetise ? "white" : "black",
+              fontWeight: "bold",
+              cursor: "pointer",
+              width: "150px",
+            }}
+          >
+            Tidak dimonetisasi
+          </button>
         </div>
-        {/* Submit Button */}
         <button
           type="submit"
-          disabled={isSubmitting} // Disable button when submitting
+          disabled={isSubmitting}
           style={{
             width: "100%",
             padding: "10px",
