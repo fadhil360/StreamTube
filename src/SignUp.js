@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "./firebaseConfig";
 
@@ -7,6 +7,23 @@ function SignUp({ setPage }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [currentImage, setCurrentImage] = useState(0);
+
+  // Daftar gambar untuk background
+  const images = [
+    "/images/1.jpg",
+    "/images/2.jpg",
+    "/images/3.jpg",
+  ];
+
+  // Mengatur pergantian background setiap 5 detik
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImage((prevImage) => (prevImage + 1) % images.length); // Loop kembali ke gambar pertama
+    }, 5000); // Ganti setiap 5000ms (5 detik)
+
+    return () => clearInterval(interval); // Membersihkan interval saat komponen di-unmount
+  }, [images.length]);
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -32,8 +49,13 @@ function SignUp({ setPage }) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
-      <div className="w-full max-w-md p-8">
+    <div
+      className="min-h-screen flex items-center justify-center bg-cover bg-center transition-all duration-1000"
+      style={{
+        backgroundImage: `url(${images[currentImage]})`, // Ambil gambar berdasarkan state
+      }}
+    >
+      <div className="w-full max-w-md p-8 bg-white bg-opacity-60 rounded-lg shadow-lg">
         <h1 className="text-3xl font-bold text-center mb-8">
           Register to Streamtube
         </h1>
