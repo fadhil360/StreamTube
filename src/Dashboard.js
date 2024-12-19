@@ -24,7 +24,6 @@ function RevenuePage({ DocId }) {
 function Video({ DocId }) {
   return (
     <>
-      <Display />
       <Display setLoad={DocId} />
     </>
   );

@@ -24,35 +24,61 @@ function Load({ setLoad }) {
       let tempPaid = 0;
       let tempTotal = 0;
       const tempVideos = [];
-
+  
       const querySnapshot = await getDocs(
         collection(db, "users", setLoad, "video")
       );
-
+  
+      const savedViews = JSON.parse(localStorage.getItem("randomViews")) || {};
+      const savedDonations = JSON.parse(localStorage.getItem("randomDonations")) || {};
+  
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        const newDonation = data.totaldonasi * (data.donasi ? 1 : 0);
-        const newAdsense = data.watchcount * 0.1 * (data.adsense ? 1 : 0);
-        const newPaid =
-          data.boughttime * (data.price || 0) * (data.paidcontent ? 1 : 0);
-
-        tempDonation += newDonation;
-        tempAdsense += newAdsense;
-        tempPaid += newPaid;
-        tempTotal += newDonation + newAdsense + newPaid;
-
+        const videoId = doc.id;
+  
+        // Ambil atau generate views
+        let randomViews = savedViews[videoId];
+        if (randomViews === undefined) {
+          randomViews = Math.floor(Math.random() * 1000); // Random angka 0-999
+          savedViews[videoId] = randomViews;
+        }
+  
+        // Ambil atau generate donation revenue
+        let randomDonation = savedDonations[videoId];
+        if (randomDonation === undefined && data.donasi) {
+          randomDonation = Math.floor(Math.random() * 50000) + 10000; // Random donation Rp10.000 - Rp50.000
+          savedDonations[videoId] = randomDonation;
+        }
+  
+        const price = data.price || 0; // Ambil harga paid content
+        const revenue = data.paidcontent
+          ? randomViews * price // Paid Content: views * price
+          : data.donasi
+          ? randomDonation // Donation: revenue random
+          : randomViews * 2000; // Adsense: default revenue per view
+  
         tempVideos.push({
           title: data.name || "No Title",
-          views: data.watchcount || 0,
+          views: randomViews,
           type: data.paidcontent
             ? "Paid Content"
             : data.adsense
             ? "Adsense"
             : "Donation",
-          revenue: newDonation + newAdsense + newPaid,
+          revenue: revenue,
         });
+  
+        if (data.donasi) tempDonation += revenue; // Tambahkan ke total donation
+        if (data.paidcontent) tempPaid += revenue; // Tambahkan ke total paid content
+        if (data.adsense) tempAdsense += revenue; // Tambahkan ke total adsense
+  
+        tempTotal += revenue; // Tambahkan semua revenue ke total
       });
-
+  
+      // Simpan views dan donations ke local storage untuk persistensi
+      localStorage.setItem("randomViews", JSON.stringify(savedViews));
+      localStorage.setItem("randomDonations", JSON.stringify(savedDonations));
+  
       setDonation(tempDonation);
       setAdsense(tempAdsense);
       setPaid(tempPaid);
@@ -62,10 +88,13 @@ function Load({ setLoad }) {
       console.error("Error getting documents: ", error);
     }
   };
+  
+  
 
   useEffect(() => {
     getAllDocuments();
   }, []);
+
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
@@ -106,15 +135,15 @@ function Load({ setLoad }) {
             </tr>
           </thead>
           <tbody>
-            {videos.map((video, index) => (
-              <tr key={index}>
-                <td className="border px-4 py-2">{video.title}</td>
-                <td className="border px-4 py-2">{video.views}</td>
-                <td className="border px-4 py-2">{video.type}</td>
-                <td className="border px-4 py-2">{formatRupiah(video.revenue)}</td>
-              </tr>
-            ))}
-          </tbody>
+  {videos.map((video, index) => (
+    <tr key={index}>
+      <td className="border px-4 py-2">{video.title}</td>
+      <td className="border px-4 py-2">{video.views}</td>
+      <td className="border px-4 py-2">{video.type}</td>
+      <td className="border px-4 py-2">{formatRupiah(video.revenue)}</td>
+    </tr>
+  ))}
+</tbody>
         </table>
       </div>
     </div>

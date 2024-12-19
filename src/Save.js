@@ -38,13 +38,14 @@ function Save({ DocId }) {
         donasi,
         adsense,
         paidcontent,
-        price: paidcontent ? price : 0,
+        price: paidcontent ? price : 0, // Menyimpan harga paid content jika monetisasi adalah paid
         boughttime: 0,
         watchcount: 0,
         totaldonasi: 0,
         syarat: false,
         date: serverTimestamp(),
       });
+      
 
       setName("");
       setDeskripsi("");
